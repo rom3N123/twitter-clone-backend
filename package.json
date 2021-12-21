@@ -1,0 +1,16 @@
+{
+    "name": "my-twitter-clone-backend",
+    "version": "1.0.0",
+    "main": "./src/index.js",
+    "license": "MIT",
+    "dependencies": {
+        "dotenv": "^10.0.0",
+        "express": "^4.17.2",
+        "mongoose": "^6.1.2",
+        "nodemon": "^2.0.15"
+    },
+    "type": "module",
+    "scripts": {
+        "watch": "nodemon ./src/index.js"
+    }
+}
