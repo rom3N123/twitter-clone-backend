@@ -10,6 +10,18 @@ const userSchema = new mongoose.Schema({
         required: true,
         type: String,
     },
+    birthTimestamp: {
+        required: true,
+        type: Number,
+    },
+    name: {
+        required: true,
+        type: String,
+    },
+    registeredAt: {
+        required: true,
+        type: Number,
+    },
 });
 
 const UserModel = mongoose.model('User', userSchema);

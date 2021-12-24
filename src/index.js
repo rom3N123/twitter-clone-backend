@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { UserController } from './controllers/UserController.js';
+import { router as ApiRouter } from './routers/ApiRouter.js';
 import './core/db.js';
 dotenv.config();
 
@@ -8,11 +8,9 @@ const PORT = process.env.PORT;
 
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send('hello');
-});
+app.use(express.json());
 
-app.get('/users', UserController.getUser);
+app.use('/api', ApiRouter);
 
 app.listen(PORT, () => {
     console.log('server has started');
