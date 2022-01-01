@@ -6,7 +6,7 @@ const DB_PW = process.env.DB_PW;
 const DB_NAME = process.env.DB_NAME;
 const DB_USER_NAME = process.env.DB_USER_NAME;
 
-const DB_URL = `mongodb+srv://${DB_USER_NAME}:${DB_PW}@cluster0.fyiqo.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
+const DB_URL = `mongodb+srv://${DB_USER_NAME}:${DB_PW}@cluster0.cdpsu.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
 
 mongoose.connect(DB_URL);
 

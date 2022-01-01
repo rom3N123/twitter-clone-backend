@@ -6,12 +6,12 @@ class _AuthController {
         try {
             const { email, password, birthTimestamp, name } = req.body;
 
-            const createdUser = await AuthService.register(
+            const createdUser = await AuthService.register({
                 email,
                 password,
                 birthTimestamp,
                 name,
-            );
+            });
 
             res.json({ user: createdUser });
         } catch (error) {

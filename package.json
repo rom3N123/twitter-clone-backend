@@ -13,6 +13,6 @@
     },
     "type": "module",
     "scripts": {
-        "watch": "nodemon ./src/index.js"
+        "dev": "nodemon ./src/index.js"
     }
 }

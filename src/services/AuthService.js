@@ -10,7 +10,7 @@ class _AuthService {
      * @param {string} name Имя
      * @returns {Model} Модель пользователя
      */
-    async register(email, password, birthTimestamp, name) {
+    async register({ email, password, birthTimestamp, name }) {
         const isUserAlreadyExist = await UserService.findUserByEmail(email);
 
         if (isUserAlreadyExist) {
