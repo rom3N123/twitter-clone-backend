@@ -13,7 +13,7 @@ class _AuthController {
                 name,
             });
 
-            res.json({ user: createdUser });
+            res.json(createdUser);
         } catch (error) {
             res.json({ status: 'fail', error: error.message });
         }

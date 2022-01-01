@@ -1,9 +1,10 @@
-import * as argon2 from 'argon2';
+import jwt from 'jsonwebtoken';
 import { UserModel } from '../models/UserModel.js';
 import { UserService } from '../services/UserService.js';
 
 class _AuthService {
     /**
+     * Создаёт пользователя в БД
      * @param {string} email Почта
      * @param {string} password Пароль
      * @param {number} birthTimestamp Таймстамп рождения
@@ -11,31 +12,29 @@ class _AuthService {
      * @returns {Model} Модель пользователя
      */
     async register({ email, password, birthTimestamp, name }) {
-        const isUserAlreadyExist = await UserService.findUserByEmail(email);
+        const isUserAlreadyExist = await UserModel.findOne({ email });
 
         if (isUserAlreadyExist) {
             throw new Error('User already exists');
         }
 
-        const hashedPassword = await argon2.hash(password);
-
-        const registeredTimestamp = Date.now();
-
-        await UserModel.create({
-            email,
-            password: hashedPassword,
-            birthTimestamp,
-            name,
-            registeredAt: registeredTimestamp,
-        });
-
-        return {
+        const user = await UserService.create({
             email,
             password,
-            name,
             birthTimestamp,
-            createdAt: registeredTimestamp,
-        };
+            name,
+        });
+
+        const token = this.createToken(user);
+
+        return { user, token };
+    }
+
+    createToken(user) {
+        const signature = 'MySuP3R_z3kr3t';
+        const options = { expiresIn: '24h' };
+
+        return jwt.sign(user, signature, options);
     }
 }
 
