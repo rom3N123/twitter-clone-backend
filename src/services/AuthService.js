@@ -35,6 +35,8 @@ class AuthService {
         return { user, token };
     }
 
+    async login(req, res) {}
+
     createToken(user) {
         return jwt.sign(user, signature, options);
     }

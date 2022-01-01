@@ -1,8 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { signature } from '../jwtConfig.js';
 
-class _AuthMiddleware {
+class AuthMiddleware {
     checkToken(req, res, next) {
+        if (req.path.includes('auth')) {
+            return next();
+        }
+
         const authHeader = req.headers.authorization;
 
         if (authHeader) {
@@ -27,4 +31,4 @@ class _AuthMiddleware {
     }
 }
 
-export default new _AuthMiddleware();
+export default new AuthMiddleware();
