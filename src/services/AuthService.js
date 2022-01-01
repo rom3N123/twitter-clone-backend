@@ -35,7 +35,58 @@ class AuthService {
         return { user, token };
     }
 
-    async login(req, res) {}
+    async loginByCredentials({ email, password }) {
+        if (!email || !password) {
+            throw new Error('Incorrect email or password');
+        }
+
+        const user = await UserModel.findOne({ email });
+
+        const arePasswordsTheSame = await argon2.verify(
+            user.password,
+            password,
+        );
+
+        if (!arePasswordsTheSame) {
+            throw new Error('Incorrect password or email');
+        }
+
+        return { user, token: this.createToken({ id: user._id }) };
+    }
+
+    async loginByToken(req) {
+        const token = this.getTokenFromRequest(req);
+
+        if (!token) {
+            throw new Error('Incorrect token');
+        }
+
+        const tokenValue = jwt.verify(token, signature);
+
+        if (tokenValue.id) {
+            const user = await UserModel.findById(tokenValue.id);
+
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            return { user };
+        } else {
+            throw new Error('Invalid token value');
+        }
+    }
+
+    getTokenFromRequest(req) {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            return null;
+        }
+
+        return (
+            authHeader.split(' ')[0] === 'Bearer' && authHeader.split(' ')[1]
+        );
+    }
 
     createToken(user) {
         return jwt.sign(user, signature, options);

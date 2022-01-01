@@ -5,7 +5,7 @@ import { BodyValidationMiddleware } from '../middlewares/BodyValidationMiddlewar
 
 const router = express.Router();
 
-router.route('/login').get().post();
+router.route('/login').get(AuthController.login).post(AuthController.login);
 
 router
     .route('/register')

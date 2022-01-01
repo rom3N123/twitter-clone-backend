@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { signature } from '../jwtConfig.js';
+import AuthService from '../services/AuthService.js';
 
 class AuthMiddleware {
     checkToken(req, res, next) {
@@ -7,27 +8,19 @@ class AuthMiddleware {
             return next();
         }
 
-        const authHeader = req.headers.authorization;
+        const token = AuthService.getTokenFromRequest(req);
 
-        if (authHeader) {
-            const token =
-                authHeader.split(' ')[0] === 'Bearer' &&
-                authHeader.split(' ')[1];
-
-            if (!token) {
-                return res.status(403).json({ message: 'Unauthorized' });
-            }
-
-            try {
-                req.tokenValue = jwt.verify(token, signature);
-            } catch (e) {
-                return res.status(403).json({ message: 'Unauthorized' });
-            }
-
-            next();
-        } else {
+        if (!token) {
             return res.status(403).json({ message: 'Unauthorized' });
         }
+
+        try {
+            req.tokenValue = jwt.verify(token, signature);
+        } catch (e) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        next();
     }
 }
 
