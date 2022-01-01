@@ -1,8 +1,11 @@
 import express from 'express';
-import { router as AuthRouter } from './AuthRouter.js';
+import AuthRouter from './AuthRouter.js';
+import AuthMiddleware from '../middlewares/AuthMiddleware.js';
 
 const router = express.Router();
 
+router.use(AuthMiddleware.checkToken);
+
 router.use('/auth', AuthRouter);
 
-export { router };
+export default router;

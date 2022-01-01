@@ -1,6 +1,6 @@
 import { UserModel } from '../models/UserModel.js';
 
-class _UserController {
+class UserController {
     async getUser(req, res) {
         await UserModel.create({ email: 'kseexy@mail.ru', password: '120' });
 
@@ -8,6 +8,4 @@ class _UserController {
     }
 }
 
-const UserController = new _UserController();
-
-export { UserController };
+export default new UserController();

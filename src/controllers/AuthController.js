@@ -1,7 +1,6 @@
-import validation from 'express-validator';
-import { AuthService } from '../services/AuthService.js';
+import AuthService from '../services/AuthService.js';
 
-class _AuthController {
+class AuthController {
     async register(req, res) {
         try {
             const { email, password, birthTimestamp, name } = req.body;
@@ -20,6 +19,4 @@ class _AuthController {
     }
 }
 
-const AuthController = new _AuthController();
-
-export { AuthController };
+export default new AuthController();

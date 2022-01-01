@@ -1,5 +1,5 @@
 import express from 'express';
-import { AuthController } from '../controllers/AuthController.js';
+import AuthController from '../controllers/AuthController.js';
 import { RegisterValidation } from '../validations/AuthValidation.js';
 import { BodyValidationMiddleware } from '../middlewares/BodyValidationMiddleware.js';
 
@@ -15,4 +15,4 @@ router
         AuthController.register,
     );
 
-export { router };
+export default router;

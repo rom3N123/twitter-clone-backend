@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import { UserModel } from '../models/UserModel.js';
-
-class _AuthService {
+import { signature, options } from '../jwtConfig.js';
+class AuthService {
     /**
      * Создаёт пользователя в БД
      * @param {string} email Почта
@@ -28,19 +28,16 @@ class _AuthService {
             registerTimestamp: Date.now(),
         });
 
-        const token = this.createToken(user._doc);
+        const token = this.createToken({
+            id: user._id,
+        });
 
         return { user, token };
     }
 
     createToken(user) {
-        const signature = 'MySuP3R_z3kr3t';
-        const options = { expiresIn: '24h' };
-
         return jwt.sign(user, signature, options);
     }
 }
 
-const AuthService = new _AuthService();
-
-export { AuthService };
+export default new AuthService();
