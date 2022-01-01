@@ -2,15 +2,8 @@ import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import { UserModel } from '../models/UserModel.js';
 import { signature, options } from '../jwtConfig.js';
+
 class AuthService {
-    /**
-     * Создаёт пользователя в БД
-     * @param {string} email Почта
-     * @param {string} password Пароль
-     * @param {number} birthTimestamp Таймстамп рождения
-     * @param {string} name Имя
-     * @returns {Model} Модель пользователя
-     */
     async register({ email, password, birthTimestamp, name }) {
         const isUserAlreadyExist = await UserModel.findOne({ email });
 
