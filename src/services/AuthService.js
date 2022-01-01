@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
+import argon2 from 'argon2';
 import { UserModel } from '../models/UserModel.js';
-import { UserService } from '../services/UserService.js';
 
 class _AuthService {
     /**
@@ -18,14 +18,17 @@ class _AuthService {
             throw new Error('User already exists');
         }
 
-        const user = await UserService.create({
+        const hashedPassword = await argon2.hash(password);
+
+        const user = await UserModel.create({
             email,
-            password,
+            password: hashedPassword,
             birthTimestamp,
             name,
+            registerTimestamp: Date.now(),
         });
 
-        const token = this.createToken(user);
+        const token = this.createToken(user._doc);
 
         return { user, token };
     }
