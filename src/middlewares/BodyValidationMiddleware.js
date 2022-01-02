@@ -5,7 +5,9 @@ class _BodyValidationMiddleware {
         const { errors } = validationResult(req);
 
         if (errors.length) {
-            return res.json({ message: 'Validation error', errors });
+            return res
+                .status(400)
+                .json({ message: 'Validation error', errors });
         }
 
         next();

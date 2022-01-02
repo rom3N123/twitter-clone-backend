@@ -1,4 +1,5 @@
 import validator from 'express-validator';
+import { UserModel } from '../models/UserModel.js';
 
 export const RegisterValidation = [
     validator
@@ -6,7 +7,14 @@ export const RegisterValidation = [
         .isEmail()
         .withMessage('Incorrect E-Mail')
         .isLength({ min: 8 })
-        .withMessage('E-Mail must consist at least of 8 characters'),
+        .withMessage('E-Mail must consist at least of 8 characters')
+        .custom(async (email) => {
+            const user = await UserModel.findOne({ email });
+
+            if (user) {
+                return Promise.reject('Email is busy');
+            }
+        }),
     validator
         .body('password', 'Enter password')
         .isString()

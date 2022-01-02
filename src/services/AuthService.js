@@ -2,13 +2,14 @@ import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import { UserModel } from '../models/UserModel.js';
 import { signature, options } from '../jwtConfig.js';
+import UsersService from './UsersService.js';
 
 class AuthService {
     async register({ email, password, birthTimestamp, name }) {
         const isUserAlreadyExist = await UserModel.findOne({ email });
 
         if (isUserAlreadyExist) {
-            throw new Error('User already exists');
+            throw new Error('User with this email is exists');
         }
 
         const hashedPassword = await argon2.hash(password);
@@ -25,7 +26,7 @@ class AuthService {
             id: user._id,
         });
 
-        return { user, token };
+        return { user: UsersService.getUserWithoutPassword(user), token };
     }
 
     async loginByCredentials({ email, password }) {
@@ -44,7 +45,10 @@ class AuthService {
             throw new Error('Incorrect password or email');
         }
 
-        return { user, token: this.createToken({ id: user._id }) };
+        return {
+            user: UsersService.getUserWithoutPassword(user),
+            token: this.createToken({ id: user._id }),
+        };
     }
 
     async loginByToken(req) {
@@ -63,7 +67,7 @@ class AuthService {
                 throw new Error('User not found');
             }
 
-            return { user };
+            return { user: UsersService.getUserWithoutPassword(user) };
         } else {
             throw new Error('Invalid token value');
         }
