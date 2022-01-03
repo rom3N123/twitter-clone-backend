@@ -21,13 +21,11 @@ class AuthController {
 
     async login(req, res) {
         try {
-            const credentials = req.body;
+            const isBodyEmpty = getIsRequestBodyEmpty(req.body);
 
-            const isCredentialsEmpty = getIsRequestBodyEmpty(credentials);
-
-            const { user, token } = isCredentialsEmpty
+            const { user, token } = isBodyEmpty
                 ? await AuthService.loginByToken(req)
-                : await AuthService.loginByCredentials(credentials);
+                : await AuthService.loginByCredentials(req.body);
 
             res.json({ user, token });
         } catch (e) {

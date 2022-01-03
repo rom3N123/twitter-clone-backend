@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema({
     following: {
         type: [Number],
     },
+    location: {
+        type: String,
+    },
 });
 
 const UserModel = mongoose.model('User', userSchema);

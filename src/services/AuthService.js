@@ -36,6 +36,10 @@ class AuthService {
 
         const user = await UserModel.findOne({ email });
 
+        if (!user) {
+            throw new Error('Incorrect email or password');
+        }
+
         const arePasswordsTheSame = await argon2.verify(
             user.password,
             password,
