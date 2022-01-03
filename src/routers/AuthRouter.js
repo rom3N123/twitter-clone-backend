@@ -7,12 +7,13 @@ const router = express.Router();
 
 router.route('/login').get(AuthController.login).post(AuthController.login);
 
-router
-    .route('/register')
-    .post(
-        RegisterValidation,
-        BodyValidationMiddleware.validate,
-        AuthController.register,
-    );
+router.post(
+    '/register',
+    RegisterValidation,
+    BodyValidationMiddleware.validate,
+    AuthController.register,
+);
+
+router.get('/logout');
 
 export default router;
