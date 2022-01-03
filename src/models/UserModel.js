@@ -37,6 +37,12 @@ const userSchema = new mongoose.Schema({
     location: {
         type: String,
     },
+    avatar: {
+        type: String,
+    },
+    background: {
+        type: String,
+    },
 });
 
 const UserModel = mongoose.model('User', userSchema);

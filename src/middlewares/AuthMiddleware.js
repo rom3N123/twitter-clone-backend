@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { signature } from '../jwtConfig.js';
+import { signature } from '../configs/jwtConfig.js';
 import AuthService from '../services/AuthService.js';
 
 class AuthMiddleware {
