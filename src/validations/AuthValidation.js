@@ -1,5 +1,5 @@
 import validator from 'express-validator';
-import { UserModel } from '../models/UserModel.js';
+import UserModel from '../models/UserModel.js';
 
 export const RegisterValidation = [
     validator

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
-import { UserModel } from '../models/UserModel.js';
+import UserModel from '../models/UserModel.js';
 import { signature, options } from '../configs/jwtConfig.js';
 import UsersService from './UsersService.js';
 

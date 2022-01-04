@@ -1,4 +1,4 @@
-import { UserModel } from '../models/UserModel.js';
+import UserModel from '../models/UserModel.js';
 import CloudinaryService from './CloudinaryService.js';
 
 class UsersService {

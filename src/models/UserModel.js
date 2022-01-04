@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
-const userSchema = new mongoose.Schema({
+const { Schema, model, Types } = mongoose;
+
+const userSchema = new Schema({
     email: {
         required: true,
         unique: true,
@@ -26,13 +28,13 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     tweets: {
-        type: [Number],
+        type: [Types.ObjectId],
     },
     followers: {
-        type: [Number],
+        type: [Types.ObjectId],
     },
     following: {
-        type: [Number],
+        type: [Types.ObjectId],
     },
     location: {
         type: String,
@@ -45,6 +47,6 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-const UserModel = mongoose.model('User', userSchema);
+const UserModel = model('User', userSchema);
 
-export { UserModel };
+export default UserModel;

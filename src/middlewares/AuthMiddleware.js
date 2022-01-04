@@ -22,6 +22,21 @@ class AuthMiddleware {
 
         next();
     }
+
+    areUsersTheSame(req, res, next) {
+        try {
+            const { id } = req.tokenValue;
+            const { userId } = req.params;
+
+            if (id === userId) {
+                next();
+            } else {
+                throw new Error('Users are not the same');
+            }
+        } catch (e) {
+            res.status(400).json({ message: e.message });
+        }
+    }
 }
 
 export default new AuthMiddleware();
