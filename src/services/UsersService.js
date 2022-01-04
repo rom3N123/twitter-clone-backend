@@ -4,14 +4,6 @@ import CloudinaryService from './CloudinaryService.js';
 class UsersService {
     imageUpdateFields = ['background', 'avatar'];
 
-    getUserWithoutPassword(user) {
-        const {
-            _doc: { password, ...otherFields },
-        } = user;
-
-        return otherFields;
-    }
-
     async findById(userId) {
         const user = await UserModel.findById(userId);
 
@@ -19,7 +11,7 @@ class UsersService {
             throw new Error('User not found');
         }
 
-        return this.getUserWithoutPassword(user);
+        return user;
     }
 
     async update(userId, fields) {
@@ -38,8 +30,6 @@ class UsersService {
                 }
             }
 
-            console.log(resultFields);
-
             const user = await UserModel.findByIdAndUpdate(
                 userId,
                 resultFields,
@@ -48,7 +38,7 @@ class UsersService {
                 },
             );
 
-            return this.getUserWithoutPassword(user);
+            return user;
         } catch (e) {
             throw Error('User not found');
         }
@@ -70,6 +60,27 @@ class UsersService {
         }
 
         return result;
+    }
+
+    async getModelWithUser(models) {
+        if (Array.isArray(models)) {
+            return Promise.all(
+                models.map(async (model) => {
+                    const newModel = { ...model };
+                    delete newModel.userId;
+                    const user = await UserModel.findById(
+                        model.userId,
+                        'name registerTimestamp birthTimestamp tweets followers following location bio avatar background',
+                    );
+                    return { ...newModel, user };
+                }),
+            );
+        } else {
+            const newModel = { ...models };
+            const user = await UserModel.findById(models.userId);
+            delete newModel.userId;
+            return { ...newModel, user };
+        }
     }
 }
 

@@ -1,13 +1,46 @@
+import mongoose from 'mongoose';
 import TweetModel from '../models/TweetModel.js';
+import UserModel from '../models/UserModel.js';
+import UsersService from '../services/UsersService.js';
 
 class TweetsController {
     async index(req, res) {
         try {
             const { userId } = req.params;
 
-            const tweets = await TweetModel.find({
-                userId,
-            });
+            const tweets = await TweetModel.aggregate([
+                {
+                    $match: {
+                        userId: mongoose.Types.ObjectId(userId),
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        let: {
+                            userId: '$userId',
+                        },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $eq: ['$_id', '$$userId'],
+                                    },
+                                },
+                            },
+                        ],
+                        as: 'user',
+                    },
+                },
+                {
+                    $unwind: '$user',
+                },
+                {
+                    $project: {
+                        'user.password': 0,
+                    },
+                },
+            ]);
 
             res.json(tweets);
         } catch (error) {
@@ -24,11 +57,22 @@ class TweetsController {
                 userId,
             });
 
-            if (!tweet) {
-                throw new Error('Tweet not found');
-            }
-
             res.json(tweet);
+
+            // TweetModel.findOne({
+            //     _id: tweetId,
+            //     userId,
+            // })
+            //     .lean()
+            //     .exec(async (err, tweet) => {
+            //         if (err) {
+            //             throw new Error('Tweet not found');
+            //         } else {
+            //             const tweetWithUser =
+            //                 await UsersService.getModelWithUser(tweet);
+            //             res.json(tweetWithUser);
+            //         }
+            //     });
         } catch (error) {
             res.status(404).json({
                 message: error.message,

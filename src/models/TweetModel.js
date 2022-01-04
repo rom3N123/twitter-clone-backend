@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import UsersService from '../services/UsersService.js';
 
 const { Schema, model, Types } = mongoose;
 

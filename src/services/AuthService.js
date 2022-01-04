@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import UserModel from '../models/UserModel.js';
 import { signature, options } from '../configs/jwtConfig.js';
-import UsersService from './UsersService.js';
 
 class AuthService {
     async register({ email, password, birthTimestamp, name }) {
@@ -26,7 +25,7 @@ class AuthService {
             id: user._id,
         });
 
-        return { user: UsersService.getUserWithoutPassword(user), token };
+        return { user, token };
     }
 
     async loginByCredentials({ email, password }) {
@@ -50,7 +49,7 @@ class AuthService {
         }
 
         return {
-            user: UsersService.getUserWithoutPassword(user),
+            user,
             token: this.createToken({ id: user._id }),
         };
     }
@@ -71,7 +70,7 @@ class AuthService {
                 throw new Error('User not found');
             }
 
-            return { user: UsersService.getUserWithoutPassword(user) };
+            return { user };
         } else {
             throw new Error('Invalid token value');
         }
