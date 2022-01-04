@@ -22,6 +22,7 @@ const userSchema = new Schema({
     registerTimestamp: {
         type: Number,
         required: true,
+        immutable: true,
     },
     birthTimestamp: {
         type: Number,

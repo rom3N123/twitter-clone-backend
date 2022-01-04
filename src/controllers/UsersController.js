@@ -1,15 +1,8 @@
 import UserModel from '../models/UserModel.js';
-import TweetModel from '../models/TweetModel.js';
 import UsersService from '../services/UsersService.js';
 
 class UsersController {
-    async getUsers(req, res) {
-        const users = await UserModel.find();
-
-        res.json({ users });
-    }
-
-    async findById(req, res) {
+    async get(req, res) {
         const { userId } = req.params;
 
         try {
@@ -32,16 +25,6 @@ class UsersController {
             res.status(400).json({ message: 'Update failed' });
         }
     }
-
-    async getUserTweets(req, res) {}
-
-    async createTweet(req, res) {
-        const user = req.tokenValue;
-
-        res.json(user);
-    }
-
-    async deleteTweet(req, res) {}
 }
 
 export default new UsersController();

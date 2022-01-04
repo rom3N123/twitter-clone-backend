@@ -8,8 +8,9 @@ const tweetSchema = new Schema({
         required: true,
     },
     publishTimestamp: {
-        type: Types.ObjectId,
+        type: Number,
         required: true,
+        immutable: true,
     },
     comments: {
         type: [Types.ObjectId],
@@ -23,6 +24,7 @@ const tweetSchema = new Schema({
     userId: {
         type: Types.ObjectId,
         required: true,
+        immutable: true,
     },
 });
 
