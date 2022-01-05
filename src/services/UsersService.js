@@ -1,5 +1,6 @@
 import UserModel from '../models/UserModel.js';
 import CloudinaryService from './CloudinaryService.js';
+import ApiError from '../exceptions/ApiError.js';
 
 class UsersService {
     imageUpdateFields = ['background', 'avatar'];
@@ -8,7 +9,7 @@ class UsersService {
         const user = await UserModel.findById(userId);
 
         if (!user) {
-            throw new Error('User not found');
+            throw ApiError.NotFoundError('User');
         }
 
         return user;
@@ -40,7 +41,7 @@ class UsersService {
 
             return user;
         } catch (e) {
-            throw Error('User not found');
+            throw ApiError.NotFoundError('User');
         }
     }
 
@@ -60,27 +61,6 @@ class UsersService {
         }
 
         return result;
-    }
-
-    async getModelWithUser(models) {
-        if (Array.isArray(models)) {
-            return Promise.all(
-                models.map(async (model) => {
-                    const newModel = { ...model };
-                    delete newModel.userId;
-                    const user = await UserModel.findById(
-                        model.userId,
-                        'name registerTimestamp birthTimestamp tweets followers following location bio avatar background',
-                    );
-                    return { ...newModel, user };
-                }),
-            );
-        } else {
-            const newModel = { ...models };
-            const user = await UserModel.findById(models.userId);
-            delete newModel.userId;
-            return { ...newModel, user };
-        }
     }
 }
 

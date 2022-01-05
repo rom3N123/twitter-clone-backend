@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
-import { signature } from '../configs/jwtConfig.js';
-import AuthService from '../services/AuthService.js';
+import dotenv from 'dotenv';
+import TokensService from '../services/TokensService.js';
+import ApiError from '../exceptions/ApiError.js';
+dotenv.config();
 
 class AuthMiddleware {
     checkToken(req, res, next) {
@@ -8,33 +10,37 @@ class AuthMiddleware {
             return next();
         }
 
-        const token = AuthService.getTokenFromRequest(req);
+        const token = TokensService.getTokenFromRequest(req);
 
         if (!token) {
-            return res.status(403).json({ message: 'Unauthorized' });
+            throw ApiError.UnauthorizedError();
         }
 
         try {
-            req.tokenValue = jwt.verify(token, signature);
+            jwt.verify(token, process.env.JWT_SIGNATURE);
         } catch (e) {
-            return res.status(403).json({ message: 'Unauthorized' });
+            throw ApiError.UnauthorizedError();
         }
 
         next();
     }
 
-    areUsersTheSame(req, res, next) {
-        try {
-            const { id } = req.tokenValue;
-            const { userId } = req.params;
+    decodeToken(req, res, next) {
+        const token = TokensService.getTokenFromRequest(req);
+        if (token) {
+            req.tokenValue = jwt.verify(token, process.env.JWT_SIGNATURE);
+        }
+        next();
+    }
 
-            if (id === userId) {
-                next();
-            } else {
-                throw new Error('Users are not the same');
-            }
-        } catch (e) {
-            res.status(400).json({ message: e.message });
+    areUsersTheSame(req, res, next) {
+        const { id } = req.tokenValue;
+        const { userId } = req.params;
+
+        if (id === userId) {
+            next();
+        } else {
+            throw ApiError.BadRequestError('Users are not the same');
         }
     }
 }

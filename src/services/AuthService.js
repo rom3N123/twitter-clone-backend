@@ -1,19 +1,26 @@
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 import UserModel from '../models/UserModel.js';
-import { signature, options } from '../configs/jwtConfig.js';
+import TokensService from './TokensService.js';
+import dotenv from 'dotenv';
+import ApiError from '../exceptions/ApiError.js';
+dotenv.config();
 
 class AuthService {
     async register({ email, password, birthTimestamp, name }) {
         const isUserAlreadyExist = await UserModel.findOne({ email });
 
         if (isUserAlreadyExist) {
-            throw new Error('User with this email is exists');
+            throw ApiError.BadRequestError(
+                'User with this email is already exist',
+            );
         }
 
         const hashedPassword = await argon2.hash(password);
 
-        const user = await UserModel.create({
+        const {
+            _doc: { password: userPassword, ...otherUserFields },
+        } = await UserModel.create({
             email,
             password: hashedPassword,
             birthTimestamp,
@@ -21,75 +28,63 @@ class AuthService {
             registerTimestamp: Date.now(),
         });
 
-        const token = this.createToken({
-            id: user._id,
-        });
-
-        return { user, token };
+        return {
+            user: otherUserFields,
+            ...(await TokensService.createPairOfTokens(otherUserFields._id)),
+        };
     }
 
     async loginByCredentials({ email, password }) {
         if (!email || !password) {
-            throw new Error('Incorrect email or password');
+            throw ApiError.BadRequestError('Incorrect email or password');
         }
 
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({ email })
+            .select('+password')
+            .lean();
 
         if (!user) {
-            throw new Error('Incorrect email or password');
+            throw ApiError.BadRequestError('Incorrect email or password');
         }
 
-        const arePasswordsTheSame = await argon2.verify(
-            user.password,
-            password,
-        );
+        const { password: userPassword, ...otherUserFields } = user;
+
+        const arePasswordsTheSame = await argon2.verify(userPassword, password);
 
         if (!arePasswordsTheSame) {
-            throw new Error('Incorrect password or email');
+            throw ApiError.BadRequestError('Incorrect password or email');
         }
 
         return {
-            user,
-            token: this.createToken({ id: user._id }),
+            user: otherUserFields,
+            ...(await TokensService.createPairOfTokens(otherUserFields._id)),
         };
     }
 
     async loginByToken(req) {
-        const token = this.getTokenFromRequest(req);
+        const token = TokensService.getTokenFromRequest(req);
 
         if (!token) {
-            throw new Error('Incorrect token');
+            throw ApiError.UnauthorizedError();
         }
 
-        const tokenValue = jwt.verify(token, signature);
+        try {
+            const tokenValue = jwt.verify(token, process.env.JWT_SIGNATURE);
 
-        if (tokenValue.id) {
-            const user = await UserModel.findById(tokenValue.id);
+            if (tokenValue.id) {
+                const user = await UserModel.findById(tokenValue.id);
 
-            if (!user) {
-                throw new Error('User not found');
+                if (!user) {
+                    throw ApiError.UnauthorizedError();
+                }
+
+                return { user };
+            } else {
+                throw ApiError.UnauthorizedError();
             }
-
-            return { user };
-        } else {
-            throw new Error('Invalid token value');
+        } catch (e) {
+            throw ApiError.UnauthorizedError();
         }
-    }
-
-    getTokenFromRequest(req) {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            return null;
-        }
-
-        return (
-            authHeader.split(' ')[0] === 'Bearer' && authHeader.split(' ')[1]
-        );
-    }
-
-    createToken(user) {
-        return jwt.sign(user, signature, options);
     }
 }
 

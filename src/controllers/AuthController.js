@@ -1,39 +1,83 @@
 import AuthService from '../services/AuthService.js';
 import { getIsRequestBodyEmpty } from '../helpers/customFunctions.js';
+import TokensService from '../services/TokensService.js';
 
 class AuthController {
-    async register(req, res) {
+    async register(req, res, next) {
         try {
             const { email, password, birthTimestamp, name } = req.body;
 
-            const createdUser = await AuthService.register({
+            const { user, access, refresh } = await AuthService.register({
                 email,
                 password,
                 birthTimestamp,
                 name,
             });
 
-            res.json(createdUser);
+            res.cookie('refreshToken', refresh, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+            });
+
+            res.json({ user, token: access });
         } catch (error) {
-            res.status(400).json({ status: 'fail', error: error.message });
+            next(error);
         }
     }
 
-    async login(req, res) {
+    async login(req, res, next) {
         try {
             const isBodyEmpty = getIsRequestBodyEmpty(req.body);
 
-            const { user, token } = isBodyEmpty
+            const { user, access, refresh } = isBodyEmpty
                 ? await AuthService.loginByToken(req)
                 : await AuthService.loginByCredentials(req.body);
 
-            res.json({ user, token });
-        } catch (e) {
-            res.status(400).json({ message: e.message });
+            if (refresh) {
+                res.cookie('refreshToken', refresh, {
+                    maxAge: 30 * 24 * 60 * 60 * 1000,
+                    httpOnly: true,
+                });
+            }
+
+            res.json({ user, token: access });
+        } catch (error) {
+            next(error);
         }
     }
 
-    async logout(req, res) {}
+    async refreshToken(req, res, next) {
+        try {
+            const { refreshToken } = req.cookies;
+
+            const { access, refresh } = await TokensService.refreshTokens(
+                refreshToken,
+            );
+
+            res.cookie('refreshToken', refresh, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+            });
+
+            res.json({ token: access });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async logout(req, res, next) {
+        try {
+            const { id } = req.tokenValue;
+
+            console.log(id);
+
+            await TokensService.deleteRefreshToken(id);
+
+            res.status(200).json({ message: 'Success' });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new AuthController();

@@ -4,7 +4,7 @@ import UserModel from '../models/UserModel.js';
 import UsersService from '../services/UsersService.js';
 
 class TweetsController {
-    async index(req, res) {
+    async index(req, res, next) {
         try {
             const { userId } = req.params;
 
@@ -44,11 +44,11 @@ class TweetsController {
 
             res.json(tweets);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            next(error);
         }
     }
 
-    async get(req, res) {
+    async get(req, res, next) {
         try {
             const { userId, tweetId } = req.params;
 
@@ -74,13 +74,11 @@ class TweetsController {
             //         }
             //     });
         } catch (error) {
-            res.status(404).json({
-                message: error.message,
-            });
+            next(error);
         }
     }
 
-    async create(req, res) {
+    async create(req, res, next) {
         try {
             const { userId } = req.params;
             const { text } = req.body;
@@ -93,11 +91,11 @@ class TweetsController {
 
             res.json(tweet);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            next(error);
         }
     }
 
-    async delete(req, res) {
+    async delete(req, res, next) {
         try {
             const { userId, tweetId } = req.params;
 
@@ -105,7 +103,7 @@ class TweetsController {
 
             res.json({ message: 'Success' });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            next(error);
         }
     }
 }
