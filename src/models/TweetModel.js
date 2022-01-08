@@ -15,9 +15,12 @@ const tweetSchema = new Schema({
 	comments: {
 		type: [Types.ObjectId],
 	},
-	likes: {
-		type: [Types.ObjectId],
-	},
+	likes: [
+		{
+			type: Types.ObjectId,
+			ref: 'User',
+		},
+	],
 	retweets: {
 		type: [Types.ObjectId],
 	},
