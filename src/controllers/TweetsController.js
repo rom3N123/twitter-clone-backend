@@ -1,11 +1,18 @@
 import TweetModel from '../models/TweetModel.js';
+import RepliesService from '../services/RepliesService.js';
 
 class TweetsController {
 	async index(req, res, next) {
 		try {
 			const { userId } = req.params;
 
-			const tweets = await TweetModel.find({ user: userId }).populate('user');
+			const tweets = await TweetModel.find({
+				user: userId,
+			})
+				.where({
+					replyTo: undefined,
+				})
+				.populate('user');
 
 			res.json(tweets);
 		} catch (error) {
@@ -20,7 +27,14 @@ class TweetsController {
 			const tweet = await TweetModel.findOne({
 				_id: tweetId,
 				userId,
-			});
+			})
+				.populate('user')
+				.populate({
+					path: 'replyTo',
+					populate: {
+						path: 'user',
+					},
+				});
 
 			res.json(tweet);
 		} catch (error) {
@@ -49,7 +63,7 @@ class TweetsController {
 		try {
 			const { userId, tweetId } = req.params;
 
-			await TweetModel.deleteOne({ user: userId, _id: tweetId });
+			await RepliesService.remove({ userId, tweetId });
 
 			res.json({ message: 'Success' });
 		} catch (error) {

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const { Schema, model, Types } = mongoose;
 
-const tweetSchema = new Schema({
+export const tweetSchema = new Schema({
 	text: {
 		type: String,
 		required: true,
@@ -12,18 +12,18 @@ const tweetSchema = new Schema({
 		required: true,
 		immutable: true,
 	},
-	comments: {
-		type: [Types.ObjectId],
+	replyTo: {
+		type: Types.ObjectId,
+		ref: 'Tweet',
 	},
+	replies: [{ type: Types.ObjectId, ref: 'Tweet' }],
+	retweets: [{ type: Types.ObjectId, ref: 'User' }],
 	likes: [
 		{
 			type: Types.ObjectId,
 			ref: 'User',
 		},
 	],
-	retweets: {
-		type: [Types.ObjectId],
-	},
 	user: {
 		type: Types.ObjectId,
 		ref: 'User',

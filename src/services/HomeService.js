@@ -6,8 +6,6 @@ class HomeService {
 	async getFollowingTweets(userId) {
 		const user = await UserModel.findById(userId);
 
-		console.log(user);
-
 		if (!user) {
 			throw ApiError.NotFoundError('User');
 		}
