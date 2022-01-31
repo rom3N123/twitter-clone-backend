@@ -23,9 +23,15 @@ const dialogMessageSchema = new Schema({
 		type: Boolean,
 		immutable: true,
 	},
+	dialog: {
+		type: Types.ObjectId,
+		ref: 'Dialog',
+		required: true,
+		immutable: true,
+	},
 	author: { type: Types.ObjectId, ref: 'User', immutable: true },
 });
 
-const DialogMessage = model('Message', dialogMessageSchema);
+const DialogMessageModel = model('Message', dialogMessageSchema);
 
-export default DialogMessage;
+export default DialogMessageModel;
