@@ -19,6 +19,10 @@ const dialogMessageSchema = new Schema({
 		type: Types.ObjectId,
 		ref: 'Message',
 	},
+	isSystem: {
+		type: Boolean,
+		immutable: true,
+	},
 	author: { type: Types.ObjectId, ref: 'User', immutable: true },
 });
 

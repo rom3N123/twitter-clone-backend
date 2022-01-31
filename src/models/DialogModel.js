@@ -12,7 +12,9 @@ const dialogSchema = new Schema({
 	},
 	creator: {
 		type: Types.ObjectId,
+		ref: 'User',
 		immutable: true,
+		required: true,
 	},
 });
 

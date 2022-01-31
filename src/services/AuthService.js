@@ -7,85 +7,81 @@ import ApiError from '../exceptions/ApiError.js';
 dotenv.config();
 
 class AuthService {
-    async register({ email, password, birthTimestamp, name }) {
-        const isUserAlreadyExist = await UserModel.findOne({ email });
+	async register({ email, password, birthTimestamp, name }) {
+		const isUserAlreadyExist = await UserModel.findOne({ email });
 
-        if (isUserAlreadyExist) {
-            throw ApiError.BadRequestError(
-                'User with this email is already exist',
-            );
-        }
+		if (isUserAlreadyExist) {
+			throw ApiError.BadRequestError('User with this email is already exist');
+		}
 
-        const hashedPassword = await argon2.hash(password);
+		const hashedPassword = await argon2.hash(password);
 
-        const {
-            _doc: { password: userPassword, ...otherUserFields },
-        } = await UserModel.create({
-            email,
-            password: hashedPassword,
-            birthTimestamp,
-            name,
-            registerTimestamp: Date.now(),
-        });
+		const {
+			_doc: { password: userPassword, ...otherUserFields },
+		} = await UserModel.create({
+			email,
+			password: hashedPassword,
+			birthTimestamp,
+			name,
+			registerTimestamp: Date.now(),
+		});
 
-        return {
-            user: otherUserFields,
-            ...(await TokensService.createPairOfTokens(otherUserFields._id)),
-        };
-    }
+		return {
+			user: otherUserFields,
+			...(await TokensService.createPairOfTokens(otherUserFields._id)),
+		};
+	}
 
-    async loginByCredentials({ email, password }) {
-        if (!email || !password) {
-            throw ApiError.BadRequestError('Incorrect email or password');
-        }
+	async loginByCredentials({ email, password }) {
+		if (!email || !password) {
+			throw ApiError.BadRequestError('Incorrect email or password');
+		}
 
-        const user = await UserModel.findOne({ email })
-            .select('+password')
-            .lean();
+		const user = await UserModel.findOne({ email }).select('+password').lean();
 
-        if (!user) {
-            throw ApiError.BadRequestError('Incorrect email or password');
-        }
+		if (!user) {
+			throw ApiError.BadRequestError('Incorrect email or password');
+		}
 
-        const { password: userPassword, ...otherUserFields } = user;
+		const { password: userPassword, ...otherUserFields } = user;
 
-        const arePasswordsTheSame = await argon2.verify(userPassword, password);
+		const arePasswordsTheSame = await argon2.verify(userPassword, password);
 
-        if (!arePasswordsTheSame) {
-            throw ApiError.BadRequestError('Incorrect password or email');
-        }
+		if (!arePasswordsTheSame) {
+			throw ApiError.BadRequestError('Incorrect password or email');
+		}
 
-        return {
-            user: otherUserFields,
-            ...(await TokensService.createPairOfTokens(otherUserFields._id)),
-        };
-    }
+		return {
+			user: otherUserFields,
+			...(await TokensService.createPairOfTokens(otherUserFields._id)),
+		};
+	}
 
-    async loginByToken(req) {
-        const token = TokensService.getTokenFromRequest(req);
+	async loginByToken(req) {
+		const token = TokensService.getTokenFromRequest(req);
 
-        if (!token) {
-            throw ApiError.UnauthorizedError();
-        }
+		if (!token) {
+			throw ApiError.UnauthorizedError();
+		}
 
-        try {
-            const tokenValue = jwt.verify(token, process.env.JWT_SIGNATURE);
+		try {
+			const tokenValue = jwt.verify(token, process.env.JWT_SIGNATURE);
 
-            if (tokenValue.id) {
-                const user = await UserModel.findById(tokenValue.id);
+			if (tokenValue.id) {
+				const user = await UserModel.findById(tokenValue.id);
 
-                if (!user) {
-                    throw ApiError.UnauthorizedError();
-                }
+				if (!user) {
+					throw ApiError.UnauthorizedError();
+				}
 
-                return { user };
-            } else {
-                throw ApiError.UnauthorizedError();
-            }
-        } catch (e) {
-            throw ApiError.UnauthorizedError();
-        }
-    }
+				return { user };
+			} else {
+				throw ApiError.UnauthorizedError();
+			}
+		} catch (_) {
+			throw ApiError.UnauthorizedError();
+		}
+	}
 }
 
 export default new AuthService();
