@@ -26,6 +26,6 @@ const dialogMessageSchema = new Schema({
 	author: { type: Types.ObjectId, ref: 'User', immutable: true },
 });
 
-const DialogMessage = model('Dialog', dialogMessageSchema);
+const DialogMessage = model('Message', dialogMessageSchema);
 
 export default DialogMessage;

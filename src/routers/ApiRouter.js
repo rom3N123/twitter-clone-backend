@@ -5,7 +5,7 @@ import errorMiddleware from '../middlewares/ErrorMiddleware.js';
 import AuthRouter from './AuthRouter.js';
 import UsersRouter from './UsersRouter.js';
 import HomeRouter from './HomeRouter.js';
-import DialgosRouter from './DialogsRouter.js';
+import DialogsRouter from './DialogsRouter.js';
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.use('/users', UsersRouter);
 
 router.use('/home', HomeRouter);
 
-router.use('/dialogs', DialgosRouter);
+router.use('/dialogs', DialogsRouter);
 
 router.use(errorMiddleware);
 
