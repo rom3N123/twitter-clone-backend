@@ -43,6 +43,8 @@ const userSchema = new Schema({
 	following: [{ type: Types.ObjectId, ref: 'User' }],
 });
 
+userSchema.index({ name: 'text', _id: 'text' });
+
 const UserModel = model('User', userSchema);
 
 export default UserModel;

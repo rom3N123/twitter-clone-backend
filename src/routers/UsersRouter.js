@@ -7,6 +7,8 @@ import TweetsRouter from './TweetsRouter.js';
 
 const router = express.Router();
 
+router.get('/search', UsersController.search);
+
 router
 	.route('/:userId')
 	.get(UsersController.get)
