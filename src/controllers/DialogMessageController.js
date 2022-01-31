@@ -1,12 +1,15 @@
 import DialogMessageModel from '../models/DialogMessageModel.js';
 import ApiError from '../exceptions/ApiError.js';
+import DialogMessageService from '../services/DialogMessageService.js';
 
 class DialogMessageController {
 	async index(req, res, next) {
 		try {
 			const { messageId } = req.params;
 
-			const message = await DialogMessageModel.findById(messageId);
+			const message = await DialogMessageModel.findById(messageId).populate(
+				'dialog author'
+			);
 
 			if (!message) {
 				throw ApiError.NotFoundError('Message');
@@ -20,17 +23,16 @@ class DialogMessageController {
 
 	async update(req, res, next) {
 		try {
-			const { messageId } = req.params;
+			const { dialogId, messageId } = req.params;
+			const { text } = req.body;
 
-			const message = await DialogMessageModel.findById(messageId);
+			const updatedMessage = await DialogMessageService.update({
+				text,
+				messageId,
+				dialogId,
+			});
 
-			// const updatedMessage = await DialogMessageModel.findByIdAndUpdate(
-			// 	messageId,
-			// 	req.body,
-			// 	{
-			// 		new: true,
-			// 	}
-			// );
+			res.json(updatedMessage);
 		} catch (error) {
 			next(error);
 		}

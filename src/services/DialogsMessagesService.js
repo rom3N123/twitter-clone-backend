@@ -3,6 +3,11 @@ import DialogMessageModel from '../models/DialogMessageModel.js';
 import DialogModel from '../models/DialogModel.js';
 
 class DialogsMessagesService {
+	/**
+	 * @param {Types.ObjectId} dialogId
+	 * @param {Types.ObjectId=} replyTo
+	 * @returns string|undefined
+	 */
 	async isPossibleToCreateMessage({ dialogId, replyTo }) {
 		let message;
 		const dialog = await DialogModel.findById(dialogId);
@@ -22,6 +27,18 @@ class DialogsMessagesService {
 		return message;
 	}
 
+	/**
+	 *
+	 * @param {object} message
+	 * @param {string} message.text
+	 * @param {string=} message.replyTo
+	 * @param {string} message.author
+	 * @param {boolean=} message.isSystem
+	 * @param {string} message.dialog
+	 *
+	 * @param {boolean=} isWithPopulate
+	 * @returns
+	 */
 	async create(
 		{ text, replyTo, author, isSystem, dialog },
 		isWithPopulate = false
