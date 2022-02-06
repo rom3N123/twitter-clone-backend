@@ -9,6 +9,7 @@ const dialogMessageSchema = new Schema({
 	},
 	isEdited: {
 		type: Boolean,
+		default: false,
 	},
 	createdAt: {
 		type: Number,
@@ -18,10 +19,12 @@ const dialogMessageSchema = new Schema({
 	replyTo: {
 		type: Types.ObjectId,
 		ref: 'Message',
+		default: null,
 	},
 	isSystem: {
 		type: Boolean,
 		immutable: true,
+		default: false,
 	},
 	dialog: {
 		type: Types.ObjectId,

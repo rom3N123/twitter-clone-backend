@@ -7,14 +7,19 @@ import DialogMessagesRouter from '../routers/DialogMessagesRouter.js';
 
 const router = express.Router();
 
-router.post(
-	'/',
-	DialogCreateValidation,
-	BodyValidationMiddleware.validate,
-	DialogsController.create,
-);
+router
+	.route('/')
+	.get(DialogsController.index)
+	.post(
+		DialogCreateValidation,
+		BodyValidationMiddleware.validate,
+		DialogsController.create
+	);
 
-router.route('/:dialogId').get(DialogsController.get).delete(DialogsController.delete);
+router
+	.route('/:dialogId')
+	.get(DialogsController.get)
+	.delete(DialogsController.delete);
 
 router.use('/:dialogId/messages', DialogMessagesRouter);
 

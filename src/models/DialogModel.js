@@ -7,6 +7,11 @@ const dialogSchema = new Schema({
 		type: [{ type: Types.ObjectId, ref: 'User' }],
 		required: true,
 	},
+	messages: {
+		type: [Types.ObjectId],
+		ref: 'Message',
+		required: true,
+	},
 	creator: {
 		type: Types.ObjectId,
 		ref: 'User',

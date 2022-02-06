@@ -4,6 +4,20 @@ import UserModel from '../models/UserModel.js';
 import DialogService from '../services/DialogService.js';
 
 class DialogsController {
+	async index(req, res, next) {
+		try {
+			const { id } = req.tokenValue;
+
+			const dialogs = await DialogModel.find({
+				$or: [{ creator: id }, { participants: id }],
+			}).populate('participants messages creator');
+
+			res.json(dialogs);
+		} catch (error) {
+			next(error);
+		}
+	}
+
 	async create(req, res, next) {
 		try {
 			const { participants, creator } = req.body;
@@ -34,15 +48,15 @@ class DialogsController {
 			const { dialogId } = req.params;
 			const { id } = req.tokenValue;
 
-			const dialog = await DialogModel.findById(dialogId).populate('creator participants');
+			const dialog = await DialogModel.findById(dialogId).populate(
+				'creator participants'
+			);
 
 			if (!dialog) {
 				throw ApiError.NotFoundError('Dialog');
 			}
 
 			const hasAccess = DialogService.hasAccessToDialog(id, dialog);
-
-			console.log(hasAccess);
 
 			if (!hasAccess) {
 				throw ApiError.BadRequestError();
