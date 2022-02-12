@@ -10,7 +10,15 @@ class DialogsController {
 
 			const dialogs = await DialogModel.find({
 				$or: [{ creator: id }, { participants: id }],
-			}).populate('participants messages creator');
+			})
+				.populate('participants creator')
+				.populate({
+					path: 'messages',
+					populate: {
+						path: 'author',
+						model: 'User',
+					},
+				});
 
 			res.json(dialogs);
 		} catch (error) {

@@ -34,6 +34,15 @@ class DialogsMessagesController {
 				true
 			);
 
+			await DialogModel.updateOne(
+				{ _id: dialogId },
+				{
+					$push: {
+						messages: message._id,
+					},
+				}
+			);
+
 			res.json(message);
 		} catch (error) {
 			next(error);
