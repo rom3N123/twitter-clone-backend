@@ -63,6 +63,15 @@ class DialogsMessagesService {
 			createdAt: Date.now(),
 		});
 
+		await DialogModel.updateOne(
+			{ _id: dialog },
+			{
+				$push: {
+					messages: message._id,
+				},
+			}
+		);
+
 		messageToReturn = !isWithPopulate
 			? message
 			: await DialogMessageModel.populate(message, { path: 'dialog author' });
