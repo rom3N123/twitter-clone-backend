@@ -9,6 +9,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import DialogsMessagesService from './services/DialogsMessagesService.js';
 import jwt from 'jsonwebtoken';
+import ApiError from './exceptions/ApiError.js';
 
 const CORS_ORIGIN = 'http://localhost:3000';
 
@@ -26,15 +27,27 @@ const PORT = process.env.PORT || 5000;
 
 const onlineUsers = {};
 
-io.on('connection', socket => {
-	const token = socket.handshake.auth.token;
-	const user = token ? jwt.verify(token, process.env.JWT_SIGNATURE) : {};
+io.use((socket, next) => {
+	try {
+		const token = socket.handshake.auth.token;
 
-	if (user.id) {
-		console.log('emit online');
-		onlineUsers[user.id] = true;
-		io.emit('JOIN_ONLINE', user.id);
+		if (!token) {
+			ApiError.UnauthorizedError();
+		}
+
+		const { id } = jwt.verify(token, process.env.JWT_SIGNATURE);
+		socket.userId = id;
+		next();
+	} catch (error) {
+		next(error);
 	}
+});
+
+io.on('connection', socket => {
+	const { userId } = socket;
+
+	onlineUsers[userId] = true;
+	io.emit('JOIN_ONLINE', userId);
 
 	socket.on('GET_IS_ONLINE', userId => {
 		const isOnline = Boolean(onlineUsers[userId]);
@@ -46,11 +59,11 @@ io.on('connection', socket => {
 
 	socket.on('CONNECT', user => {
 		console.log('user connected');
-		socket.emit('JOIN_ONLINE', user._id);
+		socket.emit('JOIN_ONLINE', userId);
 	});
 
 	socket.on('DISCONNECT', user => {
-		console.log(`user disconnect: ${user._id}`);
+		console.log(`user disconnect: ${userId}`);
 		socket.emit('LEAVE_ONLINE', user);
 		socket.disconnect();
 	});
@@ -75,9 +88,8 @@ io.on('connection', socket => {
 	});
 
 	socket.on('disconnect', socket => {
-		console.log('disconnected');
-		onlineUsers[user.id] = false;
-		io.emit('LEAVE_ONLINE', user.id);
+		onlineUsers[userId] = false;
+		io.emit('LEAVE_ONLINE', userId);
 	});
 });
 
@@ -89,10 +101,6 @@ app.use(
 );
 app.use(express.json({ limit: '50mb' }));
 app.use(cookieParser());
-app.use((req, res, next) => {
-	req.io = io;
-	next();
-});
 
 app.use('/api', ApiRouter);
 
