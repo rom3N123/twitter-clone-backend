@@ -56,9 +56,15 @@ class DialogsController {
 			const { dialogId } = req.params;
 			const { id } = req.tokenValue;
 
-			const dialog = await DialogModel.findById(dialogId).populate(
-				'creator participants'
-			);
+			const dialog = await DialogModel.findById(dialogId)
+				.populate('creator participants')
+				.populate({
+					path: 'messages',
+					populate: {
+						path: 'author',
+						model: 'User',
+					},
+				});
 
 			if (!dialog) {
 				throw ApiError.NotFoundError('Dialog');

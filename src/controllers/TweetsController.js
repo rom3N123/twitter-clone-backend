@@ -1,5 +1,7 @@
+import ApiError from '../exceptions/ApiError.js';
 import TweetModel from '../models/TweetModel.js';
 import RepliesService from '../services/RepliesService.js';
+import TweetsService from '../services/TweetsService.js';
 
 class TweetsController {
 	async index(req, res, next) {
@@ -63,7 +65,17 @@ class TweetsController {
 		try {
 			const { userId, tweetId } = req.params;
 
-			await RepliesService.remove({ userId, tweetId });
+			const tweet = await TweetModel.findById(tweetId);
+
+			if (!tweet) {
+				throw ApiError.NotFoundError('Tweet');
+			}
+
+			if (tweet.replyTo) {
+				await RepliesService.remove({ userId, tweetId });
+			} else {
+				await TweetModel.deleteOne({ _id: tweetId });
+			}
 
 			res.json({ message: 'Success' });
 		} catch (error) {

@@ -49,6 +49,14 @@ io.on('connection', socket => {
 	onlineUsers[userId] = true;
 	io.emit('JOIN_ONLINE', userId);
 
+	socket.on('DIALOG_ACTION_START', ({ user, action, dialogId }) => {
+		socket.to(dialogId).emit('DIALOG_ACTION_START', { user, action });
+	});
+
+	socket.on('DIALOG_ACTION_FINISH', ({ user, action, dialogId }) => {
+		socket.to(dialogId).emit('DIALOG_ACTION_FINISH', { user, action });
+	});
+
 	socket.on('GET_IS_ONLINE', userId => {
 		const isOnline = Boolean(onlineUsers[userId]);
 
@@ -58,12 +66,10 @@ io.on('connection', socket => {
 	});
 
 	socket.on('CONNECT', user => {
-		console.log('user connected');
 		socket.emit('JOIN_ONLINE', userId);
 	});
 
 	socket.on('DISCONNECT', user => {
-		console.log(`user disconnect: ${userId}`);
 		socket.emit('LEAVE_ONLINE', user);
 		socket.disconnect();
 	});
